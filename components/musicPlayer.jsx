@@ -28,6 +28,7 @@ export default function MusicPlayer({ tracks }) {
     }
 
     const blindTestNext = () => {
+        if (position + 1 === tracks.length) return
         setPosition(position + 1)
         console.log('Next song...')
     }
