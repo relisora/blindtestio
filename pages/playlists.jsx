@@ -58,7 +58,7 @@ export default function Playlists() {
             <p><Link href="/">Home</Link ></p>
             <h2>Playlist List</h2>
             {playlists.items.map(item => <li key={item.id} onClick={selectPlaylist.bind(this, item.id)}>{item.name}</li>)}
-            {!playlists.length && <p>You don't have any playlist. Create one and refresh this page.</p>}
+            {!playlists.length && <p>You dont have any playlist. Create one and refresh this page.</p>}
 
             {tracks.length > 0 &&
                 <div>
