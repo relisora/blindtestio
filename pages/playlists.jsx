@@ -9,7 +9,6 @@ const spotifyApi = new SpotifyWebApi();
 export default function Playlists() {
     const { data: session } = useSession()
     const [playlists, setPlaylists] = useState(null)
-    const [isLoading, setLoading] = useState(false)
     const [tracks, setTracks] = useState([])
 
     if (session) spotifyApi.setAccessToken(session.accessToken)
@@ -38,10 +37,8 @@ export default function Playlists() {
     }
 
     useEffect(() => {
-        setLoading(true)
-        if (!!session) {
+        if (session) {
             spotifyApi.getUserPlaylists(session.user.id).then((data) => {
-                setLoading(false)
                 setPlaylists(data)
             },
                 function (err) {
@@ -50,7 +47,6 @@ export default function Playlists() {
         }
     }, [session])
 
-    if (isLoading) return <p>Loading...</p>
     if (!playlists) return <p>No playlist found on your profile</p>
 
     return (
