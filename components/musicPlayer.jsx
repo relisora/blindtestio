@@ -23,7 +23,10 @@ export default function MusicPlayer({ tracks }) {
             blindTestLoad()
         }
         audio.play()
-        // audio.onended = () => { blindTestNext() }
+        audio.onended = async () => {
+            await new Promise((resolve) => setTimeout(resolve, 5000)); // Sleep
+            blindTestNext()
+        }
         console.log(`Playing ${tracks[position].name} by ${tracks[position].artists[0].name}`)
     }
 
