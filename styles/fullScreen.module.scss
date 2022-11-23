@@ -1,0 +1,27 @@
+.fullScreenPage {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    flex-wrap: wrap;
+
+    .title {
+        margin-top: 24px;
+        font-size: 3rem;
+        font-weight: bold;
+    }
+
+    .imageContainer {
+        @media screen and (max-width: 800px) {
+            width: 80vw;
+        }
+
+        width: 50vw;
+        max-width: 600px;
+        aspect-ratio: 1 / 1;
+        position: relative;
+        margin: 24px 0;
+    }
+
+    .controls {}
+}

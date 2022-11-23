@@ -1,11 +1,17 @@
+import { Box, Button, ButtonGroup } from '@chakra-ui/react'
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
+import styles from '../styles/fullScreen.module.scss'
 
 export default function MusicPlayer({ tracks }) {
     const [position, setPosition] = useState(0)
-    const [audio, setAudio] = useState(new Audio())
+    const [audio] = useState(new Audio())
+    const [songImage, setSongImage] = useState('/spotify_song.png')
+    const [song, setSong] = useState({})
+    const [isShowingAnswer, setShowingAnswer] = useState(false)
 
     useEffect(() => {
-        if (tracks.length && position !== 0) {
+        if (tracks.length) {
             blindTestLoad()
             blindTestPlay()
         }
@@ -14,38 +20,65 @@ export default function MusicPlayer({ tracks }) {
     const blindTestLoad = () => {
         if (tracks.length) {
             audio.src = tracks[position].preview_url
+            setSongImage('/spotify_song.png')
+            setSong(tracks[position])
             audio.load()
         }
     }
 
     const blindTestPlay = () => {
-        if (!audio.paused || !audio.src || position === 0) {
+        if (!audio.paused || !audio.src) {
             blindTestLoad()
         }
-        audio.play()
+        audio.play().catch(e => console.log(e))
         audio.onended = async () => {
+            setShowingAnswer(true)
+            setSongImage(tracks[position].album.images[0].url)
             await new Promise((resolve) => setTimeout(resolve, 5000)); // Sleep
+            setShowingAnswer(false)
             blindTestNext()
         }
-        console.log(`Playing ${tracks[position].name} by ${tracks[position].artists[0].name}`)
     }
 
-    const blindTestNext = () => {
+    const blindTestNext = async () => {
+        setShowingAnswer(true)
+        setSongImage(tracks[position].album.images[0].url)
+        await new Promise((resolve) => setTimeout(resolve, 5000)); // Sleep
         if (position + 1 === tracks.length) return
+        setShowingAnswer(false)
         setPosition(position + 1)
-        console.log('Next song...')
     }
 
     const blindTestPause = () => {
         audio.pause()
-        console.log("Paused")
     }
 
+    if (!song) return 'Loading...'
+
     return (
-        <div>
-            <button onClick={blindTestPlay}>Play</button>
-            <button onClick={blindTestPause}>Pause</button>
-            <button onClick={blindTestNext}>Next</button>
+        <div className={styles.fullScreenPage}>
+            <div className={styles.imageContainer}>
+                {isShowingAnswer
+                    ? <Image src={songImage} fill alt="song image" priority></Image>
+                    : <Image src="/spotify_song.png" fill alt="song image" priority></Image>}
+            </div>
+            {isShowingAnswer &&
+                <>
+                    <Box mb={4} fontSize='4xl'>
+                        {song.name}
+                    </Box>
+                    {song?.artists.map(artist => <Box fontSize='2xl' key={artist.id}>{artist.name}</Box>)}
+                </>
+            }
+            {!isShowingAnswer &&
+                <>
+                    <ButtonGroup disabled>
+                        <Button onClick={blindTestPlay}>Play</Button>
+                        <Button onClick={blindTestPause}>Pause</Button>
+                        <Button onClick={blindTestNext}>Next</Button>
+                    </ButtonGroup>
+                </>
+            }
         </div>
     )
 }
