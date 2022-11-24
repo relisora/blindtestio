@@ -79,7 +79,7 @@ export const authOptions = {
       // Send properties to the client, like an access_token and user id from a provider.
       session.user = token.user
       session.accessToken = token.accessToken
-      session.error = token.error
+      session.error = token.error || null
 
       return session
     }

@@ -9,10 +9,10 @@ export default function App({
   pageProps: { session, ...pageProps },
 }: AppProps) {
   return (
-    <ChakraProvider>
-      <SessionProvider session={session}>
+    <SessionProvider session={session}>
+      <ChakraProvider>
         <Component {...pageProps} />
-      </SessionProvider>
-    </ChakraProvider>
+      </ChakraProvider>
+    </SessionProvider>
   );
 }
