@@ -24,6 +24,7 @@ export default function Playlist() {
         if (spotifyApi.getAccessToken()) {
             getPlaylistTracks()
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [session])
 
     const getPlaylistTracks = async () => {

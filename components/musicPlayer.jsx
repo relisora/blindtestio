@@ -15,6 +15,7 @@ export default function MusicPlayer({ tracks }) {
             blindTestLoad()
             blindTestPlay()
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [position])
 
     const blindTestLoad = () => {
