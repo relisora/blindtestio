@@ -48,7 +48,7 @@ export default function Playlists() {
                             <Tr key={item.id}>
                                 <Td p={1}><Link href={"/playlist/" + item.id}><Image src={item.images[0].url} width='60' height='60' alt={item.name}></Image></Link></Td>
                                 <Td><Link href={"/playlist/" + item.id}>{item.name}</Link></Td>
-                                <Td><a href={item.external_urls.spotify} target="_blank"><EditIcon /></a></Td>
+                                <Td><a href={item.external_urls.spotify} target="_blank" rel="noreferrer"><EditIcon /></a></Td>
                             </Tr>
                         )}
                     </Tbody>
