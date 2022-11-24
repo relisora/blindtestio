@@ -2,73 +2,92 @@ import { Box, Button, ButtonGroup } from '@chakra-ui/react'
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import styles from '../styles/fullScreen.module.scss'
+import useSWR from 'swr'
 
-export default function MusicPlayer({ tracks }) {
-    const [position, setPosition] = useState(0)
+const fetcher = (...args) => fetch(...args).then((res) => res.json())
+
+export default function MusicPlayer({ playlist }) {
     const [audio] = useState(new Audio())
-    const [songImage, setSongImage] = useState('/spotify_song.png')
-    const [song, setSong] = useState({})
     const [isShowingAnswer, setShowingAnswer] = useState(false)
+    const [pastSongIdx, setPastSongIdx] = useState(new Set())
+    const [songIdx, setSongIdx] = useState()
+    const [hasEnded, setEnded] = useState(false)
+    const { data: track, mutate, error } = useSWR(typeof songIdx === "number" ? `/api/spotify/playlistTrack?id=${playlist.id}&offset=${songIdx}` : null, fetcher)
 
     useEffect(() => {
-        if (tracks.length) {
-            blindTestLoad()
-            blindTestPlay()
+        if (playlist.id) randomSongIdx()
+    }, []);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            await mutate()
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [position])
+        fetchData()
+    }, [songIdx])
+
+    useEffect(() => {
+        if (!track) return
+        setPastSongIdx(previous => new Set(previous.add(songIdx)))
+        if (!track.preview_url) randomSongIdx()
+        blindTestLoad()
+    }, [track])
+
+    const randomSongIdx = async () => {
+        if (pastSongIdx.size - 1 >= playlist.size) {
+            setEnded(true)
+            return
+        }
+        // array of all possible track idx
+        const allIdx = [...Array(playlist.size).keys()]
+        // array of track idx still not played
+        const possibleIdx = allIdx.filter(x => !pastSongIdx.has(x))
+        // randomly select one track idx
+        const newSongIdx = possibleIdx[Math.floor(Math.random() * possibleIdx.length)]
+        setSongIdx(newSongIdx)
+    }
 
     const blindTestLoad = () => {
-        if (tracks.length) {
-            audio.src = tracks[position].preview_url
-            setSongImage('/spotify_song.png')
-            setSong(tracks[position])
-            audio.load()
-        }
+        if (!track?.preview_url) return
+        audio.src = track.preview_url
+        audio.load()
+        blindTestPlay()
     }
 
     const blindTestPlay = () => {
-        if (!audio.paused || !audio.src) {
-            blindTestLoad()
-        }
+        if (!audio.src) blindTestLoad()
         audio.play().catch(e => console.log(e))
         audio.onended = async () => {
-            setShowingAnswer(true)
-            setSongImage(tracks[position].album.images[0].url)
-            await new Promise((resolve) => setTimeout(resolve, 5000)); // Sleep
-            setShowingAnswer(false)
             blindTestNext()
         }
     }
 
     const blindTestNext = async () => {
         setShowingAnswer(true)
-        setSongImage(tracks[position].album.images[0].url)
         await new Promise((resolve) => setTimeout(resolve, 5000)); // Sleep
-        if (position + 1 === tracks.length) return
+        randomSongIdx()
         setShowingAnswer(false)
-        setPosition(position + 1)
     }
 
     const blindTestPause = () => {
         audio.pause()
     }
 
-    if (!song) return 'Loading...'
+    if (hasEnded) return <div>Your playlist has ended. go back to the playlist list to play more!</div>
+    if (error) return <div>Failed to load</div>
+    if (!track?.preview_url) return 'Loading...'
 
     return (
         <div className={styles.fullScreenPage}>
             <div className={styles.imageContainer}>
-                {isShowingAnswer
-                    ? <Image src={songImage} fill alt="song image" priority></Image>
-                    : <Image src="/spotify_song.png" fill alt="song image" priority></Image>}
+                <Image src={track.image} fill alt="song image" className={!isShowingAnswer && styles.imageHidden}></Image>
+                <Image src="/spotify_song.png" fill alt="song image" className={isShowingAnswer && styles.imageHidden}></Image>
             </div>
             {isShowingAnswer &&
                 <>
                     <Box mb={4} fontSize='4xl'>
-                        {song.name}
+                        {track.name}
                     </Box>
-                    {song?.artists.map(artist => <Box fontSize='2xl' key={artist.id}>{artist.name}</Box>)}
+                    {track.artists.map(artist => <Box fontSize='2xl' key={artist.id}>{artist.name}</Box>)}
                 </>
             }
             {!isShowingAnswer &&

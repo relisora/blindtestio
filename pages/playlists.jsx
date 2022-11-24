@@ -1,35 +1,17 @@
-import { useState, useEffect } from 'react'
-import SpotifyWebApi from 'spotify-web-api-js';
-import { useSession } from "next-auth/react"
 import Link from 'next/link';
 import Image from 'next/image'
 import { Table, Thead, Tbody, Tr, Th, Td, TableContainer, Heading } from '@chakra-ui/react'
 import { EditIcon } from '@chakra-ui/icons';
+import useSWR from 'swr'
 
-const spotifyApi = new SpotifyWebApi();
+const fetcher = (...args) => fetch(...args).then((res) => res.json())
 
 export default function Playlists() {
-    const { data: session } = useSession()
-    const [playlists, setPlaylists] = useState(null)
-    const [loading, setLoading] = useState(true)
+    const { data: playlists, error } = useSWR('/api/spotify/playlists', fetcher)
 
-    if (session) spotifyApi.setAccessToken(session.accessToken)
-
-    useEffect(() => {
-        if (spotifyApi.getAccessToken()) {
-            spotifyApi.getUserPlaylists(session.user.id).then((data) => {
-                setPlaylists(data)
-                setLoading(false)
-            },
-                function (err) {
-                    console.error(err);
-                })
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [session])
-
-    if (loading) return "LOADING"
-    if (!playlists) return <p>No playlist found on your profile</p>
+    if (error) return <div>Failed to load</div>
+    if (!playlists) return <div>Loading...</div>
+    if (!playlists?.items?.length) return <div>No playlist found on your profile</div>
 
     return (
         <div>
@@ -45,11 +27,11 @@ export default function Playlists() {
                         </Tr>
                     </Thead>
                     <Tbody>
-                        {playlists.items.map(item =>
-                            <Tr key={item.id}>
-                                <Td p={1}><Link href={"/playlist/" + item.id}><Image src={item.images[0].url} width='60' height='60' alt={item.name}></Image></Link></Td>
-                                <Td><Link href={"/playlist/" + item.id}>{item.name}</Link></Td>
-                                <Td><a href={item.external_urls.spotify} target="_blank" rel="noreferrer"><EditIcon /></a></Td>
+                        {playlists.items.map(playlist =>
+                            <Tr key={playlist.id}>
+                                <Td p={1}><Link href={"/playlist/" + playlist.id}><Image src={playlist.image} width='60' height='60' alt={playlist.name}></Image></Link></Td>
+                                <Td><Link href={"/playlist/" + playlist.id}>{playlist.name}</Link></Td>
+                                <Td><a href={playlist.spotify_url} target="_blank" rel="noreferrer"><EditIcon /></a></Td>
                             </Tr>
                         )}
                     </Tbody>
