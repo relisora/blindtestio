@@ -1,9 +1,14 @@
+.close {
+    position: absolute;
+    right: 2vw;
+    top: 2vw;
+}
 .fullScreenPage {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    flex-wrap: wrap;
+display: flex;
+justify-content: center;
+align-items: center;
+flex-direction: column;
+flex-wrap: wrap;
 
     .title {
         margin-top: 24px;
