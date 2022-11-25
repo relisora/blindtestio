@@ -1,9 +1,8 @@
 import Head from "next/head";
-import { useSession, signOut } from "next-auth/react";
+import { useSession, signOut, signIn } from "next-auth/react";
 import { useEffect } from "react";
 import Link from "next/link";
-import Login from "../components/login-btn";
-import { Heading, Button } from "@chakra-ui/react";
+import { Heading, Button, Stack } from "@chakra-ui/react";
 
 export default function Home() {
   const { data: session } = useSession();
@@ -16,16 +15,24 @@ export default function Home() {
 
   return (
     <div>
-      <div style={{ float: "right" }}>
-        <Login /> <br />
-      </div>
+      <div style={{ float: "right" }}></div>
 
       <Heading as="h1">Blindtest IO</Heading>
-      <div>The best blind test website blabla</div>
-      {session && (
-        <Button>
-          <Link href="playlists">See your playlists</Link>
-        </Button>
+      <div>
+        Connect your spotify account and try your music knowledge on any
+        playlist you want!
+      </div>
+      {session ? (
+        <>
+          <Stack spacing={4} direction="row" align="center" my={3}>
+            <Button>
+              <Link href="playlists">See your playlists</Link>
+            </Button>
+            <Button onClick={() => signOut()}>Sign out</Button>
+          </Stack>
+        </>
+      ) : (
+        <Button onClick={() => signIn("spotify")}>Sign in</Button>
       )}
       <Head>
         <title>Blind Test IO</title>

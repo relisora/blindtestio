@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image'
-import { Table, Thead, Tbody, Tr, Th, Td, TableContainer, Heading } from '@chakra-ui/react'
+import { Table, Thead, Tbody, Tr, Th, Td, TableContainer, Heading, Button } from '@chakra-ui/react'
 import { EditIcon } from '@chakra-ui/icons';
 import useSWR from 'swr'
 
@@ -15,7 +15,7 @@ export default function Playlists() {
 
     return (
         <div>
-            <p><Link href="/">Back</Link ></p>
+            <Button mb={3}><Link href="/">Back</Link ></Button>
             <Heading as="h1">Your playlists</Heading>
             <TableContainer>
                 <Table >
