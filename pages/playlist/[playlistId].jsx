@@ -25,14 +25,14 @@ export default function Playlist() {
             <div className={styles.fullScreenPage}>
                 <h1 className={styles.title}>{playlist.name}</h1>
                 {!isPlaying
-                ?   <>
-                        <Link href="/playlists" className={styles.close}><CloseIcon  boxSize={10} /></Link>
+                    ? <>
+                        <Link href="/playlists" className={styles.close}><CloseIcon boxSize={10} /></Link>
                         <div className={styles.imageContainer}>
-                            <Image src={playlist.image} fill alt="playlist cover"></Image>
+                            <Image src={playlist.image} fill alt="playlist cover" sizes="(max-width: 800px) 80vw, 50vw"></Image>
                         </div>
                         <Button onClick={e => setPlaying(true)}>Begin</Button>
                     </>
-                :   <MusicPlayer playlist={playlist} />
+                    : <MusicPlayer playlist={playlist} />
                 }
             </div>
         </div>

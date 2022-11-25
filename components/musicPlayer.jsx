@@ -14,8 +14,8 @@ export default function MusicPlayer({ playlist }) {
     const [pastTrackIdx, setPastTrackIdx] = useState(new Set())
     const [trackIdx, setTrackIdx] = useState()
     const [hasEnded, setEnded] = useState(false)
-    const {data: nextTrack, mutate, error} = useSWR(typeof trackIdx === "number" ? `/api/spotify/playlistTrack?id=${playlist.id}&offset=${trackIdx}` : null, fetcher)
-    const [ track, setTrack ] = useState()
+    const { data: nextTrack, mutate, error } = useSWR(typeof trackIdx === "number" ? `/api/spotify/playlistTrack?id=${playlist.id}&offset=${trackIdx}` : null, fetcher)
+    const [track, setTrack] = useState()
 
     useEffect(() => {
         randomTrackIdx()
@@ -95,8 +95,14 @@ export default function MusicPlayer({ playlist }) {
         <div className={styles.fullScreenPage}>
             <Link href="/playlists" className={styles.close} onClick={blindTestPause}><CloseIcon boxSize={10} /></Link>
             <div className={styles.imageContainer}>
-                <Image src={track.image} fill alt="track image"></Image>
-                <Image src="/spotify_track.png" fill alt="track image" className={isShowingAnswer ? styles.imageHidden : undefined}></Image>
+                <Image src={track.image} fill alt="track image" sizes="(max-width: 800px) 80vw, 50vw" />
+                <Image
+                    src="/spotify_track.png"
+                    fill
+                    alt="track image"
+                    sizes="(max-width: 800px) 80vw, 50vw"
+                    className={isShowingAnswer ? styles.imageHidden : undefined}
+                />
             </div>
             {isShowingAnswer &&
                 <>
