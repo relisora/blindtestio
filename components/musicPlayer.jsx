@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import styles from '../styles/fullScreen.module.scss'
 import useSWR from 'swr'
+import Link from 'next/link'
+import { CloseIcon } from '@chakra-ui/icons'
 
 const fetcher = (...args) => fetch(...args).then((res) => res.json())
 
@@ -78,6 +80,7 @@ export default function MusicPlayer({ playlist }) {
 
     return (
         <div className={styles.fullScreenPage}>
+            <Link href="/playlists" className={styles.close} onClick={blindTestPause}><CloseIcon boxSize={10} /></Link>
             <div className={styles.imageContainer}>
                 <Image src={track.image} fill alt="song image" className={!isShowingAnswer && styles.imageHidden}></Image>
                 <Image src="/spotify_song.png" fill alt="song image" className={isShowingAnswer && styles.imageHidden}></Image>

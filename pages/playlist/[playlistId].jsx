@@ -3,8 +3,10 @@ import { useRouter } from 'next/router'
 import MusicPlayer from "../../components/musicPlayer"
 import Image from 'next/image'
 import { Button } from '@chakra-ui/react';
-import style from "../../styles/fullScreen.module.scss"
+import styles from "../../styles/fullScreen.module.scss"
 import useSWR from 'swr'
+import Link from 'next/link';
+import { CloseIcon } from '@chakra-ui/icons';
 
 const fetcher = (...args) => fetch(...args).then((res) => res.json())
 
@@ -19,17 +21,20 @@ export default function Playlist() {
     if (!playlist.size) return <div>This playlist is empty, or you dont have access to it.</div>
 
     return (
-        <div className={style.fullScreenPage}>
-            <h1 className={style.title}>{playlist.name}</h1>
-            {!isPlaying &&
-                <>
-                    <div className={style.imageContainer}>
-                        <Image src={playlist.image} fill alt="playlist cover"></Image>
-                    </div>
-                    <Button onClick={e => setPlaying(true)}>Begin</Button>
-                </>
-            }
-            {isPlaying && <MusicPlayer playlist={playlist} />}
+        <div>
+            <div className={styles.fullScreenPage}>
+                <h1 className={styles.title}>{playlist.name}</h1>
+                {!isPlaying
+                ?   <>
+                        <Link href="/playlists" className={styles.close}><CloseIcon  boxSize={10} /></Link>
+                        <div className={styles.imageContainer}>
+                            <Image src={playlist.image} fill alt="playlist cover"></Image>
+                        </div>
+                        <Button onClick={e => setPlaying(true)}>Begin</Button>
+                    </>
+                :   <MusicPlayer playlist={playlist} />
+                }
+            </div>
         </div>
     )
 }
