@@ -1,9 +1,14 @@
+.close {
+    position: absolute;
+    right: 2vw;
+    top: 2vw;
+}
 .fullScreenPage {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    flex-wrap: wrap;
+display: flex;
+justify-content: center;
+align-items: center;
+flex-direction: column;
+flex-wrap: wrap;
 
     .title {
         margin-top: 24px;
@@ -21,7 +26,9 @@
         aspect-ratio: 1 / 1;
         position: relative;
         margin: 24px 0;
-    }
 
-    .controls {}
+        .imageHidden {
+            visibility: hidden;
+        }
+    }
 }
