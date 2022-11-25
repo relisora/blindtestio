@@ -11,13 +11,14 @@ const fetcher = (...args) => fetch(...args).then((res) => res.json())
 export default function MusicPlayer({ playlist }) {
     const [audio] = useState(new Audio())
     const [isShowingAnswer, setShowingAnswer] = useState(false)
-    const [pastSongIdx, setPastSongIdx] = useState(new Set())
-    const [songIdx, setSongIdx] = useState()
+    const [pastTrackIdx, setPastTrackIdx] = useState(new Set())
+    const [trackIdx, setTrackIdx] = useState()
     const [hasEnded, setEnded] = useState(false)
-    const { data: track, mutate, error } = useSWR(typeof songIdx === "number" ? `/api/spotify/playlistTrack?id=${playlist.id}&offset=${songIdx}` : null, fetcher)
+    const {data: nextTrack, mutate, error} = useSWR(typeof trackIdx === "number" ? `/api/spotify/playlistTrack?id=${playlist.id}&offset=${trackIdx}` : null, fetcher)
+    const [ track, setTrack ] = useState()
 
     useEffect(() => {
-        if (playlist.id) randomSongIdx()
+        randomTrackIdx()
     }, []);
 
     useEffect(() => {
@@ -25,27 +26,39 @@ export default function MusicPlayer({ playlist }) {
             await mutate()
         }
         fetchData()
-    }, [songIdx])
+    }, [trackIdx])
 
     useEffect(() => {
-        if (!track) return
-        setPastSongIdx(previous => new Set(previous.add(songIdx)))
-        if (!track.preview_url) randomSongIdx()
+        const checkPreviewUrl = () => {
+            if (!nextTrack) return
+            if (!nextTrack.preview_url) return randomTrackIdx()
+            if (!track) loadNextTrack() // first loop, track is not defined so load next track immediately
+        }
+        checkPreviewUrl()
+    }, [nextTrack])
+
+    useEffect(() => {
         blindTestLoad()
     }, [track])
 
-    const randomSongIdx = async () => {
-        if (pastSongIdx.size - 1 >= playlist.size) {
+    const randomTrackIdx = async () => {
+        if (pastTrackIdx.size - 1 >= playlist.size) {
             setEnded(true)
             return
         }
         // array of all possible track idx
         const allIdx = [...Array(playlist.size).keys()]
         // array of track idx still not played
-        const possibleIdx = allIdx.filter(x => !pastSongIdx.has(x))
+        const possibleIdx = allIdx.filter(x => !pastTrackIdx.has(x))
         // randomly select one track idx
-        const newSongIdx = possibleIdx[Math.floor(Math.random() * possibleIdx.length)]
-        setSongIdx(newSongIdx)
+        const newTrackIdx = possibleIdx[Math.floor(Math.random() * possibleIdx.length)]
+        setTrackIdx(newTrackIdx)
+        setPastTrackIdx(previous => new Set(previous.add(newTrackIdx)))
+    }
+
+    const loadNextTrack = () => {
+        setTrack(nextTrack)
+        randomTrackIdx()
     }
 
     const blindTestLoad = () => {
@@ -66,7 +79,7 @@ export default function MusicPlayer({ playlist }) {
     const blindTestNext = async () => {
         setShowingAnswer(true)
         await new Promise((resolve) => setTimeout(resolve, 5000)); // Sleep
-        randomSongIdx()
+        loadNextTrack()
         setShowingAnswer(false)
     }
 
@@ -82,8 +95,8 @@ export default function MusicPlayer({ playlist }) {
         <div className={styles.fullScreenPage}>
             <Link href="/playlists" className={styles.close} onClick={blindTestPause}><CloseIcon boxSize={10} /></Link>
             <div className={styles.imageContainer}>
-                <Image src={track.image} fill alt="song image" className={!isShowingAnswer && styles.imageHidden}></Image>
-                <Image src="/spotify_song.png" fill alt="song image" className={isShowingAnswer && styles.imageHidden}></Image>
+                <Image src={track.image} fill alt="track image"></Image>
+                <Image src="/spotify_track.png" fill alt="track image" className={isShowingAnswer ? styles.imageHidden : undefined}></Image>
             </div>
             {isShowingAnswer &&
                 <>
