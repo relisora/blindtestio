@@ -24,28 +24,27 @@ const playlistTracks = async (req: NextApiRequest, res: NextApiResponse<Track | 
 
   spotifyApi.setAccessToken(session.accessToken);
 
-  let rawTrack;
   try {
-    ({ body: rawTrack } = await spotifyApi.getPlaylistTracks(id, {
+    const playlistTrack = (await spotifyApi.getPlaylistTracks(id, {
       limit: 1,
       offset: offset,
       market: "fr",
-    }));
+    })).body;
+
+    const track = {
+      id: playlistTrack.items[0].track.id,
+      image: playlistTrack.items[0].track.album.images[0].url,
+      name: playlistTrack.items[0].track.name,
+      artists: playlistTrack.items[0].track.artists.map((artist) => {
+        return { name: artist.name, id: artist.id };
+      }),
+      preview_url: playlistTrack.items[0].track.preview_url,
+    };
+
+    return res.status(200).send(track);
   } catch (err) {
     return res.status(400).send(err);
   }
-
-  const track = {
-    id: rawTrack.items[0].track.id,
-    image: rawTrack.items[0].track.album.images[0].url,
-    name: rawTrack.items[0].track.name,
-    artists: rawTrack.items[0].track.artists.map((artist) => {
-      return { name: artist.name, id: artist.id };
-    }),
-    preview_url: rawTrack.items[0].track.preview_url,
-  };
-
-  return res.status(200).send(track);
 };
 
 export default playlistTracks;

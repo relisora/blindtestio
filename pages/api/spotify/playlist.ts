@@ -23,21 +23,20 @@ const playlist = async (req: NextApiRequest, res: NextApiResponse<Playlist | Err
 
   spotifyApi.setAccessToken(session.accessToken);
 
-  let rawPlaylist;
   try {
-    ({ body: rawPlaylist } = await spotifyApi.getPlaylist(id));
+    const singlePlaylist = (await spotifyApi.getPlaylist(id)).body
+
+    const playlist: Playlist = {
+      id,
+      image: singlePlaylist.images[0].url,
+      name: singlePlaylist.name,
+      size: singlePlaylist.tracks.total,
+    };
+
+    return res.status(200).send(playlist);
   } catch (err: unknown) {
     return res.status(400).send({ error: JSON.stringify(err) });
   }
-
-  const playlist: Playlist = {
-    id,
-    image: rawPlaylist.images[0].url,
-    name: rawPlaylist.name,
-    size: rawPlaylist.tracks.total,
-  };
-
-  return res.status(200).send(playlist);
 };
 
 export default playlist;

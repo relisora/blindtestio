@@ -1,26 +1,16 @@
 declare module "Spotify" {
 
-  interface PlaylistsItems {
-    id: string
-    image: string
-    name: string
-    spotify_url: string
-  }
-
-  interface Playlists {
-    total: number
-    items: [PlaylistItems]
-  }
-
   interface Playlist {
     id: string
     image: string
     name: string
+    spotify_url?: string
     size: number
   }
 
-  interface Error {
-    error: string
+  interface Playlists {
+    total: number
+    items: Playlist[]
   }
 
   interface Artist {
@@ -32,7 +22,11 @@ declare module "Spotify" {
     id: string
     image: string
     name: string
-    artists: [Artist]
+    artists: Artist[]
     preview_url?: string
+  }
+
+  interface Error {
+    error: string
   }
 }
