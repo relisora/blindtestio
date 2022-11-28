@@ -1,11 +1,11 @@
+import type { NextApiRequest, NextApiResponse } from 'next'
 import { unstable_getServerSession } from "next-auth/next";
-import { authOptions } from "./../auth/[...nextauth]";
-const SpotifyWebApi = require("spotify-web-api-node");
+import { authOptions } from "../auth/[...nextauth]";
+import SpotifyWebApi from "spotify-web-api-node";
+import { Error, Playlist } from 'Spotify';
 
-const playlist = async (req, res) => {
-  const {
-    query: { id },
-  } = req;
+const playlist = async (req: NextApiRequest, res: NextApiResponse<Playlist | Error>) => {
+  const id: string = String(req.query.id)
   const session = await unstable_getServerSession(req, res, authOptions);
 
   if (!session) {
@@ -26,11 +26,11 @@ const playlist = async (req, res) => {
   let rawPlaylist;
   try {
     ({ body: rawPlaylist } = await spotifyApi.getPlaylist(id));
-  } catch (err) {
-    return res.status(400).send(err);
+  } catch (err: unknown) {
+    return res.status(400).send({ error: JSON.stringify(err) });
   }
 
-  const playlist = {
+  const playlist: Playlist = {
     id,
     image: rawPlaylist.images[0].url,
     name: rawPlaylist.name,
