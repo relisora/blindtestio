@@ -1,8 +1,10 @@
+import type { NextApiRequest, NextApiResponse } from 'next'
 import { unstable_getServerSession } from "next-auth/next";
-import { authOptions } from "./../auth/[...nextauth]";
-const SpotifyWebApi = require("spotify-web-api-node");
+import { authOptions } from "../auth/[...nextauth]";
+import SpotifyWebApi from "spotify-web-api-node";
+import { Error, Playlists } from 'Spotify';
 
-const playlists = async (req, res) => {
+const playlists = async (req: NextApiRequest, res: NextApiResponse<Playlists | Error>) => {
   const session = await unstable_getServerSession(req, res, authOptions);
 
   if (!session) {
@@ -27,7 +29,7 @@ const playlists = async (req, res) => {
     return res.status(400).send(err);
   }
 
-  let playlists = {
+  let playlists: Playlists = {
     total: rawPlaylists.total,
     items: rawPlaylists.items.map((playlist) => {
       return {

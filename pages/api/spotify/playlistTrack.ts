@@ -1,11 +1,12 @@
+import type { NextApiRequest, NextApiResponse } from 'next'
 import { unstable_getServerSession } from "next-auth/next";
-import { authOptions } from "./../auth/[...nextauth]";
-const SpotifyWebApi = require("spotify-web-api-node");
+import { authOptions } from "../auth/[...nextauth]";
+import SpotifyWebApi from "spotify-web-api-node";
+import { Error, Track } from 'Spotify';
 
-const playlistTracks = async (req, res) => {
-  const {
-    query: { id, offset },
-  } = req;
+const playlistTracks = async (req: NextApiRequest, res: NextApiResponse<Track | Error>) => {
+  const id: string = String(req.query.id)
+  const offset: number = Number(req.query.offset)
   const session = await unstable_getServerSession(req, res, authOptions);
 
   if (!session) {
