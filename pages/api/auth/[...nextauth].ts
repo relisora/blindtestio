@@ -1,12 +1,14 @@
-import NextAuth from "next-auth";
+import NextAuth, { Session } from "next-auth";
+import type { NextAuthOptions } from 'next-auth'
 import SpotifyProvider from "next-auth/providers/spotify";
+import { JWT } from "next-auth/jwt";
 
 /**
  * Takes a token, and returns a new token with updated
  * `accessToken` and `accessTokenExpires`. If an error occurs,
  * returns the old token and an error property
  */
-const refreshAccessToken = async (token) => {
+const refreshAccessToken = async (token: JWT): Promise<JWT> => {
   try {
     const url =
       "https://accounts.spotify.com/api/token?" +
@@ -46,7 +48,7 @@ const refreshAccessToken = async (token) => {
   }
 };
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
     SpotifyProvider({
       authorization:
@@ -56,7 +58,7 @@ export const authOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, account, user }) {
+    async jwt({ token, account, user }): Promise<JWT> {
       // Initial sign in
       if (account && user) {
         return {
@@ -75,7 +77,7 @@ export const authOptions = {
       // Access token has expired, try to update it
       return refreshAccessToken(token);
     },
-    async session({ session, user, token }) {
+    async session({ session, token }): Promise<Session> {
       // Send properties to the client, like an access_token and user id from a provider.
       session.user = token.user;
       session.accessToken = token.accessToken;
