@@ -3,11 +3,12 @@ import Image from 'next/image'
 import { Table, Thead, Tbody, Tr, Th, Td, TableContainer, Heading, Button } from '@chakra-ui/react'
 import { EditIcon } from '@chakra-ui/icons';
 import useSWR from 'swr'
+import { Error, Playlists } from 'Spotify';
 
-const fetcher = (...args) => fetch(...args).then((res) => res.json())
+const fetcher = (url:string) => fetch(url).then((res) => res.json())
 
-export default function Playlists() {
-    const { data: playlists, error } = useSWR('/api/spotify/playlists', fetcher)
+export default function PlaylistsPage() {
+    const { data: playlists, error } = useSWR<Playlists, Error>('/api/spotify/playlists', fetcher)
 
     if (error) return <div>Failed to load</div>
     if (!playlists) return <div>Loading...</div>

@@ -5,17 +5,18 @@ import styles from '../styles/fullScreen.module.scss'
 import useSWR from 'swr'
 import Link from 'next/link'
 import { CloseIcon } from '@chakra-ui/icons'
+import { Error, Track } from 'Spotify'
 
-const fetcher = (...args) => fetch(...args).then((res) => res.json())
+const fetcher = (url:string) => fetch(url).then((res) => res.json())
 
 export default function MusicPlayer({ playlist }) {
     const [audio] = useState(new Audio())
     const [isShowingAnswer, setShowingAnswer] = useState(false)
-    const [pastTrackIdx, setPastTrackIdx] = useState(new Set())
-    const [trackIdx, setTrackIdx] = useState()
+    const [pastTrackIdx, setPastTrackIdx] = useState<Set<number>>(new Set())
+    const [trackIdx, setTrackIdx] = useState<number>()
     const [hasEnded, setEnded] = useState(false)
-    const { data: nextTrack, mutate, error } = useSWR(typeof trackIdx === "number" ? `/api/spotify/playlistTrack?id=${playlist.id}&offset=${trackIdx}` : null, fetcher)
-    const [track, setTrack] = useState()
+    const { data: nextTrack, mutate, error } = useSWR<Track, Error>(typeof trackIdx === "number" ? `/api/spotify/playlistTrack?id=${playlist.id}&offset=${trackIdx}` : null, fetcher)
+    const [track, setTrack] = useState<Track>()
 
     useEffect(() => {
         randomTrackIdx()
@@ -89,7 +90,7 @@ export default function MusicPlayer({ playlist }) {
 
     if (hasEnded) return <div>Your playlist has ended. go back to the playlist list to play more!</div>
     if (error) return <div>Failed to load</div>
-    if (!track?.preview_url) return 'Loading...'
+    if (!track?.preview_url) return <div>Loading...</div>
 
     return (
         <div className={styles.fullScreenPage}>
@@ -114,7 +115,7 @@ export default function MusicPlayer({ playlist }) {
             }
             {!isShowingAnswer &&
                 <>
-                    <ButtonGroup disabled>
+                    <ButtonGroup>
                         <Button onClick={blindTestPlay}>Play</Button>
                         <Button onClick={blindTestPause}>Pause</Button>
                         <Button onClick={blindTestNext}>Next</Button>

@@ -7,13 +7,14 @@ import styles from "../../styles/fullScreen.module.scss"
 import useSWR from 'swr'
 import Link from 'next/link';
 import { CloseIcon } from '@chakra-ui/icons';
+import { Error, Playlist } from 'Spotify';
 
-const fetcher = (...args) => fetch(...args).then((res) => res.json())
+const fetcher = (url:string) => fetch(url).then((res) => res.json())
 
-export default function Playlist() {
+export default function PlaylistPage() {
     const router = useRouter()
     const { playlistId } = router.query
-    const { data: playlist, error } = useSWR(playlistId ? `/api/spotify/playlist?id=${playlistId}` : null, fetcher)
+    const { data: playlist, error } = useSWR<Playlist, Error>(playlistId ? `/api/spotify/playlist?id=${playlistId}` : null, fetcher)
     const [isPlaying, setPlaying] = useState(false)
 
     if (error) return <div>Failed to load</div>
